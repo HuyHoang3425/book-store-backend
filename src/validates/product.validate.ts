@@ -1,0 +1,62 @@
+import Joi from 'joi'
+
+const createProduct = {
+  body: Joi.object({
+    title: Joi.string().trim().required().messages({
+      'string.empty': 'Title không được để trống',
+      'any.required': 'Title là bắt buộc'
+    }),
+    description: Joi.string().trim().optional().allow('', null),
+    authors: Joi.array().items(Joi.string().trim()).single().min(1).required().messages({
+      'array.base': 'Authors phải là mảng',
+      'array.min': 'Phải có ít nhất 1 tác giả',
+      'any.required': 'Authors là bắt buộc'
+    }),
+    publisher: Joi.string().trim().required().messages({
+      'string.empty': 'Publisher không được để trống',
+      'any.required': 'Publisher là bắt buộc'
+    }),
+    publishingYear: Joi.number()
+      .integer()
+      .min(1900)
+      .max(new Date().getFullYear())
+      .required()
+      .messages({
+        'number.base': 'Publishing year phải là số',
+        'number.min': 'Publishing year không được nhỏ hơn 1900',
+        'number.max': `Publishing year không được lớn hơn ${new Date().getFullYear()}`,
+        'any.required': 'Publishing year là bắt buộc'
+      }),
+    // categoryId: Joi.string().required().messages({
+    //   'string.empty': 'CategoryId không được để trống',
+    //   'any.required': 'CategoryId là bắt buộc'
+    // }),
+    language: Joi.string().trim().optional(),
+    ISBN: Joi.string().optional(),
+    size: Joi.string().optional(),
+    page: Joi.number().integer().optional().messages({
+      'number.base': 'Page phải là số'
+    }),
+    format: Joi.string().optional(),
+    quantity: Joi.number().integer().min(0).required().messages({
+      'number.base': 'Quantity phải là số',
+      'number.min': 'Quantity không được âm',
+      'any.required': 'Quantity là bắt buộc'
+    }),
+    price: Joi.number().min(0).required().messages({
+      'number.base': 'Price phải là số',
+      'number.min': 'Price không được âm',
+      'any.required': 'Price là bắt buộc'
+    }),
+    weight: Joi.string().optional(),
+    images: Joi.array().items(Joi.string().uri()).min(1).required().messages({
+      'array.base': 'Images phải là một mảng',
+      'array.min': 'Phải có ít nhất 1 hình ảnh',
+      'any.required': 'Images là bắt buộc'
+    })
+  })
+}
+
+export default {
+  createProduct
+}
