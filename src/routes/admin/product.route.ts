@@ -1,9 +1,9 @@
 import { Router } from 'express'
 import multer from 'multer'
-import { productController } from '../controllers'
-import validate from '../middlewares/validate.middleware'
-import { productValidate } from '../validates'
-import { cloudinaryMiddleware } from '../middlewares'
+import { productController } from '../../controllers/admin'
+import validate from '../../middlewares/validate.middleware'
+import { productValidate } from '../../validates'
+import { cloudinaryMiddleware } from '../../middlewares'
 
 const upload = multer()
 
@@ -14,7 +14,7 @@ productRouter.get('/', productController.getProducts)
 productRouter.post(
   '/',
   upload.array('images', 5),
-  cloudinaryMiddleware.uploadImages, 
+  cloudinaryMiddleware.uploadImages,
   validate(productValidate.createProduct),
   productController.addProduct
 )
@@ -27,6 +27,6 @@ productRouter.put(
   productController.editProduct
 )
 
-productRouter.delete('/:productId',productController.deleteProduct)
+productRouter.delete('/:productId', productController.deleteProduct)
 
 export default productRouter

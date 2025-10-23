@@ -1,8 +1,8 @@
 import { Request, Response } from 'express'
-import { ApiError, catchAsync, response } from '../utils'
-import { productModel } from '../models'
+import { ApiError, catchAsync, response } from '../../utils'
+import { productModel } from '../../models'
 import { StatusCodes } from 'http-status-codes'
-import { IProduct } from '../models/product.model'
+import { IProduct } from '../../models/product.model'
 
 //[GET] /products
 const getProducts = catchAsync(async (req: Request, res: Response): Promise<void> => {

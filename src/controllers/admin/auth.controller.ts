@@ -2,11 +2,11 @@ import { Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import bcrypt from 'bcrypt'
 
-import { env } from '../config'
-import { ApiError, catchAsync, jwt, response } from '../utils'
-import userModel, { IUser } from '../models/user.model'
+import { env } from '../../config'
+import { ApiError, catchAsync, jwt, response } from '../../utils'
+import userModel, { IUser } from '../../models/user.model'
 import { userInfo } from 'node:os'
-import { tokenModel } from '../models'
+import { tokenModel } from '../../models'
 
 type UserRegister = Pick<IUser, 'email' | 'password' | 'fullname'> & {
   repeatPassword: string
