@@ -1,32 +1,18 @@
 import { Router } from 'express'
-import multer from 'multer'
 import { productController } from '../../controllers/admin'
 import validate from '../../middlewares/validate.middleware'
 import { productValidate } from '../../validates'
-import { cloudinaryMiddleware } from '../../middlewares'
-
-const upload = multer()
 
 const productRouter = Router()
 
 productRouter.get('/', productController.getProducts)
 
-productRouter.post(
-  '/',
-  upload.array('images', 5),
-  cloudinaryMiddleware.uploadImages,
-  validate(productValidate.createProduct),
-  productController.addProduct
-)
+productRouter.get('/:id', validate(productValidate.checkId), productController.getProductById)
 
-productRouter.put(
-  '/:productId',
-  upload.array('images', 5),
-  cloudinaryMiddleware.uploadImages,
-  validate(productValidate.createProduct),
-  productController.editProduct
-)
+productRouter.post('/', validate(productValidate.createProduct), productController.addProduct)
 
-productRouter.delete('/:productId', productController.deleteProduct)
+productRouter.patch('/:productId', validate(productValidate.editProduct), productController.editProduct)
+
+productRouter.delete('/:productId', validate(productValidate.checkId), productController.deleteProduct)
 
 export default productRouter

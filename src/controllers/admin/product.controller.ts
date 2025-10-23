@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { ApiError, catchAsync, response } from '../../utils'
-import { productModel } from '../../models'
+import { productModel, userModel } from '../../models'
 import { StatusCodes } from 'http-status-codes'
 import { IProduct } from '../../models/product.model'
 
@@ -30,6 +30,21 @@ const getProducts = catchAsync(async (req: Request, res: Response): Promise<void
       totalPage: Math.ceil(totalProducts / +limit),
       totalProducts,
       limit: +limit
+    })
+  )
+})
+
+//[GET] /products/:id
+const getProductById = catchAsync(async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params as any
+
+  const product = await productModel.findById(id)
+
+  if (!product) throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy thông tin sản phẩm.')
+
+  res.status(StatusCodes.OK).json(
+    response(StatusCodes.OK, 'Lấy thông tin sản phẩm thành công. ', {
+      product
     })
   )
 })
@@ -85,6 +100,7 @@ const deleteProduct = catchAsync(async (req: Request, res: Response) => {
 
 export default {
   getProducts,
+  getProductById,
   addProduct,
   editProduct,
   deleteProduct

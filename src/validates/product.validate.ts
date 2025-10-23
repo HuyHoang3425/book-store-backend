@@ -1,4 +1,5 @@
 import Joi from 'joi'
+import customValidate from './custom.validate'
 
 const createProduct = {
   body: Joi.object({
@@ -57,6 +58,81 @@ const createProduct = {
   })
 }
 
+const editProduct = {
+  body: Joi.object({
+    title: Joi.string().trim().optional().messages({
+      'string.empty': 'Title không được để trống'
+    }),
+
+    description: Joi.string().trim().optional().allow('', null),
+
+    authors: Joi.array().items(Joi.string().trim()).single().optional().messages({
+      'array.base': 'Authors phải là mảng',
+      'array.min': 'Phải có ít nhất 1 tác giả'
+    }),
+
+    publisher: Joi.string().trim().optional().messages({
+      'string.empty': 'Publisher không được để trống'
+    }),
+
+    publishingYear: Joi.number()
+      .integer()
+      .min(1900)
+      .max(new Date().getFullYear())
+      .optional()
+      .messages({
+        'number.base': 'Publishing year phải là số',
+        'number.min': 'Publishing year không được nhỏ hơn 1900',
+        'number.max': `Publishing year không được lớn hơn ${new Date().getFullYear()}`
+      }),
+
+    language: Joi.string().trim().optional(),
+
+    ISBN: Joi.string().optional(),
+
+    size: Joi.string().optional(),
+
+    page: Joi.number().integer().optional().messages({
+      'number.base': 'Page phải là số'
+    }),
+
+    format: Joi.string().optional(),
+
+    quantity: Joi.number().integer().min(0).optional().messages({
+      'number.base': 'Quantity phải là số',
+      'number.min': 'Quantity không được âm'
+    }),
+
+    price: Joi.number().min(0).optional().messages({
+      'number.base': 'Price phải là số',
+      'number.min': 'Price không được âm'
+    }),
+
+    weight: Joi.string().optional(),
+
+    images: Joi.array().items(Joi.string().uri()).optional().messages({
+      'array.base': 'Images phải là một mảng'
+    })
+  }),
+  params: Joi.object({
+    id: Joi.string().custom(customValidate.objectId).required().messages({
+      'any.invalid': 'ID sản phẩm không hợp lệ.',
+      'any.required': 'Thiếu ID sản phẩm.'
+    })
+  })
+}
+
+const checkId = {
+  params: Joi.object({
+    id: Joi.string().custom(customValidate.objectId).required().messages({
+      'any.invalid': 'ID sản phẩm không hợp lệ.',
+      'any.required': 'Thiếu ID sản phẩm.'
+    })
+  })
+}
+
 export default {
-  createProduct
+  createProduct,
+  editProduct,
+  checkId
 }
