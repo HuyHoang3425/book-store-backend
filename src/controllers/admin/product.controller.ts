@@ -6,22 +6,39 @@ import { IProduct } from '../../models/product.model'
 
 //[GET] /products
 const getProducts = catchAsync(async (req: Request, res: Response): Promise<void> => {
-  const { page = 1, limit = 10 } = req.query as any
+  //pagination
+  const { page = 1, limit = 10, sortKey, sortValue, status, maxPrice, minPrice } = req.query as any
   const skip = (+page - 1) * +limit
-  const p = await productModel.find()
-  console.log(p)
+  //end pagination
+
+  //sort
+  const sort: Record<string, string> = {}
+  if (sortKey && sortValue) sort[sortKey] = sortValue
+  //end sort
+
+  // filter
+  const find: Record<string, any> = {
+    deleted: false
+  }
+
+  // lọc theo trạng thái
+  if (status) {
+    find.status = status
+  }
+
+  // lọc theo giá
+  if (minPrice || maxPrice) {
+    find.price = {}
+    if (minPrice) find.price.$gte = +minPrice
+    if (maxPrice) find.price.$lte = +maxPrice
+  }
+  console.log(find)
+  // end filter
+
   const [products, totalProducts] = await Promise.all([
-    productModel
-      .find({
-        status: 'available',
-        deleted: false
-      })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(+limit),
+    productModel.find(find).sort({ createdAt: -1 }, sort).skip(skip).limit(+limit),
     productModel.countDocuments({ status: 'available', deleted: false })
   ])
-  console.log(products)
 
   res.status(StatusCodes.OK).json(
     response(StatusCodes.OK, 'Lấy danh sách sản phẩm thành công', {
