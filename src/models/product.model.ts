@@ -1,4 +1,7 @@
-import { Schema, model ,Types } from 'mongoose'
+import mongoose, { Schema, model, Types } from 'mongoose'
+import slug from 'mongoose-slug-updater'
+
+mongoose.plugin(slug)
 
 export interface IProduct {
   title: string
@@ -18,11 +21,11 @@ export interface IProduct {
   weight?: string
   sold: number
   status: 'available' | 'out-of-stock' | 'discontinued'
+  slug: string
   deleted: boolean
   deletedAt?: Date
   ratings: { userId: Types.ObjectId; stars: number; comment?: string }[]
 }
-
 
 const productSchema = new Schema<IProduct>(
   {
@@ -33,7 +36,7 @@ const productSchema = new Schema<IProduct>(
     publisher: { type: String },
     publishingYear: { type: Number },
     // categoryId: { type: String },
-    language: { type: String, default: 'vi' },
+    language: { type: String },
     ISBN: { type: String },
     size: { type: String },
     page: { type: Number, min: 0 },
@@ -43,11 +46,12 @@ const productSchema = new Schema<IProduct>(
     weight: { type: String },
     sold: { type: Number, default: 0 },
     status: { type: String, enum: ['available', 'out-of-stock', 'discontinued'], default: 'available' },
-    deleted:{
-      type:Boolean,
-      default:false
+    slug: { type: String, slug: 'title', unique: true },
+    deleted: {
+      type: Boolean,
+      default: false
     },
-    deletedAt:Date,
+    deletedAt: Date,
     ratings: [
       {
         userId: Schema.Types.ObjectId,

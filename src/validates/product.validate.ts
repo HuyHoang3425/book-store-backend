@@ -115,7 +115,7 @@ const editProduct = {
     })
   }),
   params: Joi.object({
-    id: Joi.string().custom(customValidate.objectId).required().messages({
+    productId: Joi.string().custom(customValidate.objectId).required().messages({
       'any.invalid': 'ID sản phẩm không hợp lệ.',
       'any.required': 'Thiếu ID sản phẩm.'
     })
@@ -124,7 +124,7 @@ const editProduct = {
 
 const checkId = {
   params: Joi.object({
-    id: Joi.string().custom(customValidate.objectId).required().messages({
+    productId: Joi.string().custom(customValidate.objectId).required().messages({
       'any.invalid': 'ID sản phẩm không hợp lệ.',
       'any.required': 'Thiếu ID sản phẩm.'
     })

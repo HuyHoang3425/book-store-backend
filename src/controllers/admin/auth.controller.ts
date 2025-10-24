@@ -157,7 +157,7 @@ const logout = catchAsync(async (req: Request, res: Response): Promise<void> => 
 
 const me = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const user = req['user']
-  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'thành công.',user))
+  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'thành công.', user))
 })
 
 export default {

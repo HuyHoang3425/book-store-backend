@@ -36,9 +36,9 @@ const getProducts = catchAsync(async (req: Request, res: Response): Promise<void
 
 //[GET] /products/:id
 const getProductById = catchAsync(async (req: Request, res: Response): Promise<void> => {
-  const { id } = req.params as any
+  const { productId } = req.params as any
 
-  const product = await productModel.findById(id)
+  const product = await productModel.findById(productId)
 
   if (!product) throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy thông tin sản phẩm.')
 

@@ -1,10 +1,10 @@
 import { CustomHelpers } from 'joi'
-import mongoose from 'mongoose'
 
 const objectId = (value: string, helpers: CustomHelpers) => {
-  if (!mongoose.Types.ObjectId.isValid(value)) {
-    return helpers.error('any.invalid')
+  if (!value.match(/^[0-9a-fA-F]{24}$/)) {
+    return helpers.error('Định dạng ID không hợp lệ.')
   }
+
   return value
 }
 
