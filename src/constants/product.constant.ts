@@ -5,7 +5,7 @@ enum ACTION {
 
 enum STATUS {
   AVAILABLE = 'available',
-  OUT_OF_STOCK = 'out_of_stock',
+  OUT_OF_STOCK = 'out-of-stock',
   DISCONTINUED = 'discontinued'
 }
 

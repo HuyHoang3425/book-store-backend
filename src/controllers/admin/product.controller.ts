@@ -127,7 +127,7 @@ const editProduct = catchAsync(async (req: Request, res: Response) => {
   const product = await productModel.findByIdAndUpdate(productId, productData, { new: true })
 
   if (!product) {
-    return res.status(StatusCodes.NOT_FOUND).json(response(StatusCodes.NOT_FOUND, 'Không tìm thấy sản phẩm.'))
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy sản phẩm.')
   }
 
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Sửa sản phẩm thành công.', { product }))
@@ -175,11 +175,112 @@ const action = catchAsync(async (req: Request, res: Response) => {
   return res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Thực hiện hành động thành công.'))
 })
 
+// [GET] /products/restore
+const restore = catchAsync(async (req: Request, res: Response) => {
+  //pagination
+  const { page = 1, limit = 10, sortKey, sortValue, status, maxPrice, minPrice, keyword } = req.query as any
+  const skip = (+page - 1) * +limit
+  //end pagination
+
+  //sort
+  const sort: Record<string, any> = {}
+  if (sortKey && sortValue) sort[sortKey] = sortValue
+  sort.createdAt = -1
+  //end sort
+
+  // filter
+  const find: Record<string, any> = {
+    deleted: true
+  }
+
+  // lọc theo trạng thái
+  if (status) {
+    find.status = status
+  }
+
+  // lọc theo giá
+  if (minPrice || maxPrice) {
+    find.price = {}
+    if (minPrice) find.price.$gte = +minPrice
+    if (maxPrice) find.price.$lte = +maxPrice
+  }
+  // end filter
+
+  //search
+  // Format keyword để search
+  let formatKeyword: string
+  let regexSlug: RegExp
+  let regexKeyword: RegExp
+  let conditions: Record<string, any> = { ...find }
+  if (keyword) {
+    formatKeyword = slugify(keyword, {
+      replacement: '-',
+      lower: false,
+      locale: 'vi',
+      trim: true
+    })
+    regexSlug = new RegExp(formatKeyword, 'i')
+    regexKeyword = new RegExp(keyword, 'i')
+    conditions.$or = [
+      { slug: regexSlug },
+      { title: regexKeyword },
+      { authors: regexKeyword },
+      { publisher: regexKeyword }
+    ]
+  }
+
+  // Query
+  const [products, totalProducts] = await Promise.all([
+    productModel.find(conditions).sort(sort).skip(skip).limit(+limit).select('-__v').lean(),
+    productModel.countDocuments(conditions)
+  ])
+
+  //end search
+
+  res.status(StatusCodes.OK).json(
+    response(StatusCodes.OK, 'Lấy danh sách sản phẩm đã xoá thành công thành công', {
+      products,
+      page: +page,
+      totalPage: Math.ceil(totalProducts / +limit),
+      totalProducts,
+      limit: +limit,
+      keyword
+    })
+  )
+})
+
+// [PATCH] /products/restore/:productId
+const restoreProductById = catchAsync(async (req: Request, res: Response) => {
+  const { productId } = req.params
+  const product = await productModel.findByIdAndUpdate(productId, { deleted: false }, { new: true })
+
+  if (!product) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy sản phẩm.')
+  }
+
+  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'khôi phục sản phẩm thành công.', { product }))
+})
+
+//[DELETE] /products/restore/:productId
+const deleteProductDestroy = catchAsync(async (req: Request, res: Response) => {
+  const { productId } = req.params
+
+  const product = await productModel.findByIdAndDelete(productId)
+
+  if (!product) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy sản phẩm.')
+  }
+
+  res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Xoá sản phẩm vĩnh viễn thành công.'))
+})
 export default {
   getProducts,
   getProductById,
   addProduct,
   editProduct,
   deleteProduct,
-  action
+  action,
+  restore,
+  restoreProductById,
+  deleteProductDestroy
 }
