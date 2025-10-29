@@ -1,5 +1,6 @@
 import Joi from 'joi'
 import customValidate from './custom.validate'
+import { productConstant } from '../constants'
 
 const createProduct = {
   body: Joi.object({
@@ -131,8 +132,36 @@ const checkId = {
   })
 }
 
+const action = {
+  body: Joi.object({
+    ids: Joi.array()
+      .items(Joi.string().regex(/^[0-9a-fA-F]{24}$/))
+      .min(1)
+      .required()
+      .messages({
+        'array.base': 'ids phải là một mảng',
+        'array.min': 'Phải chọn ít nhất 1 sản phẩm',
+        'any.required': 'Thiếu danh sách ids',
+        'string.pattern.base': 'Mỗi id phải là ObjectId hợp lệ'
+      }),
+    action: Joi.string()
+      .valid(
+        productConstant.ACTION.DELETEALL,
+        productConstant.STATUS.AVAILABLE,
+        productConstant.STATUS.OUT_OF_STOCK,
+        productConstant.STATUS.DISCONTINUED
+      )
+      .required()
+      .messages({
+        'any.only': 'Giá trị action không hợp lệ',
+        'any.required': 'Thiếu trường action'
+      })
+  })
+}
+
 export default {
   createProduct,
   editProduct,
-  checkId
+  checkId,
+  action
 }

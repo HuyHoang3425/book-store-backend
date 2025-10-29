@@ -11,6 +11,8 @@ productRouter.get('/:productId', validate(productValidate.checkId), productContr
 
 productRouter.post('/', validate(productValidate.createProduct), productController.addProduct)
 
+productRouter.patch('/action', validate(productValidate.action), productController.action)
+
 productRouter.patch('/:productId', validate(productValidate.editProduct), productController.editProduct)
 
 productRouter.delete('/:productId', validate(productValidate.checkId), productController.deleteProduct)

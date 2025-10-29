@@ -1,2 +1,3 @@
 import userConstant from './user.constant'
-export { userConstant }
+import productConstant from './product.constant'
+export { userConstant, productConstant }
