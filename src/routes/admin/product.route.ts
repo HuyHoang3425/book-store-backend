@@ -11,19 +11,16 @@ productRouter.get('/restore', productController.restore)
 
 productRouter.get('/:productId', validate(productValidate.checkId), productController.getProductById)
 
-
 productRouter.post('/', validate(productValidate.createProduct), productController.addProduct)
-
 
 productRouter.patch('/action', validate(productValidate.action), productController.action)
 
 productRouter.patch('/:productId', validate(productValidate.editProduct), productController.editProduct)
 
-productRouter.patch('/restore/:productId',validate(productValidate.checkId), productController.restoreProductById)
-
+productRouter.patch('/restore/:productId', validate(productValidate.checkId), productController.restoreProductById)
 
 productRouter.delete('/:productId', validate(productValidate.checkId), productController.deleteProduct)
-productRouter.delete('/restore/:productId', validate(productValidate.checkId), productController.deleteProductDestroy)
 
+productRouter.delete('/restore/:productId', validate(productValidate.checkId), productController.deleteProductDestroy)
 
 export default productRouter

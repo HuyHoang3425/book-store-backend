@@ -1,6 +1,8 @@
 enum ACTION {
   DELETEALL = 'delete-all',
-  STATUS = 'status'
+  STATUS = 'status',
+  DELETEALLFOREVER = 'delete-all-forever',
+  RESTOREALL = 'restore-all'
 }
 
 enum STATUS {

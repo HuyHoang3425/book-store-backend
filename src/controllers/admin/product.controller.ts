@@ -1,7 +1,6 @@
 import { Request, Response } from 'express'
-import slugify from 'slugify'
 
-import { ApiError, catchAsync, response } from '../../utils'
+import { ApiError, catchAsync, productUtils, response } from '../../utils'
 import { productModel } from '../../models'
 import { StatusCodes } from 'http-status-codes'
 import { IProduct } from '../../models/product.model'
@@ -10,61 +9,16 @@ import { productConstant } from '../../constants'
 //[GET] /products
 const getProducts = catchAsync(async (req: Request, res: Response): Promise<void> => {
   //pagination
-  const { page = 1, limit = 3, sortKey, sortValue, status, maxPrice, minPrice, keyword } = req.query as any
+  const { page = 1, limit = 3, keyword } = req.query as any
   const skip = (+page - 1) * +limit
   //end pagination
 
-  //sort
-  const sort: Record<string, any> = {}
-  if (sortKey && sortValue) sort[sortKey] = sortValue
-  sort.createdAt = -1
-  //end sort
-
-  // filter
-  const find: Record<string, any> = {
-    deleted: false
-  }
-
-  // lọc theo trạng thái
-  if (status) {
-    find.status = status
-  }
-
-  // lọc theo giá
-  if (minPrice || maxPrice) {
-    find.price = {}
-    if (minPrice) find.price.$gte = +minPrice
-    if (maxPrice) find.price.$lte = +maxPrice
-  }
-  // end filter
-
-  //search
-  // Format keyword để search
-  let formatKeyword: string
-  let regexSlug: RegExp
-  let regexKeyword: RegExp
-  let conditions: Record<string, any> = { ...find }
-  if (keyword) {
-    formatKeyword = slugify(keyword, {
-      replacement: '-',
-      lower: false,
-      locale: 'vi',
-      trim: true
-    })
-    regexSlug = new RegExp(formatKeyword, 'i')
-    regexKeyword = new RegExp(keyword, 'i')
-    conditions.$or = [
-      { slug: regexSlug },
-      { title: regexKeyword },
-      { authors: regexKeyword },
-      { publisher: regexKeyword }
-    ]
-  }
+  const { find, sort } = productUtils.builtProductQuery(req.query, false)
 
   // Query
   const [products, totalProducts] = await Promise.all([
-    productModel.find(conditions).sort(sort).skip(skip).limit(+limit).select('-__v').lean(),
-    productModel.countDocuments(conditions)
+    productModel.find(find).sort(sort).skip(skip).limit(+limit).select('-__v').lean(),
+    productModel.countDocuments(find)
   ])
 
   //end search
@@ -160,11 +114,19 @@ const action = catchAsync(async (req: Request, res: Response) => {
       updateData = { deleted: true, deletedAt: new Date() }
       break
 
+    case productConstant.ACTION.RESTOREALL:
+      updateData = { deleted: false, deletedAt: null }
+      break
+
     case productConstant.STATUS.AVAILABLE:
     case productConstant.STATUS.DISCONTINUED:
     case productConstant.STATUS.OUT_OF_STOCK:
       updateData = { status: action }
       break
+
+    case productConstant.ACTION.DELETEALLFOREVER:
+      await productModel.deleteMany({ _id: { $in: ids } })
+      return res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Đã xoá vĩnh viễn thành công.'))
 
     default:
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Hành động không hợp lệ.')
@@ -178,61 +140,16 @@ const action = catchAsync(async (req: Request, res: Response) => {
 // [GET] /products/restore
 const restore = catchAsync(async (req: Request, res: Response) => {
   //pagination
-  const { page = 1, limit = 10, sortKey, sortValue, status, maxPrice, minPrice, keyword } = req.query as any
+  const { page = 1, limit = 10, keyword } = req.query as any
   const skip = (+page - 1) * +limit
   //end pagination
 
-  //sort
-  const sort: Record<string, any> = {}
-  if (sortKey && sortValue) sort[sortKey] = sortValue
-  sort.createdAt = -1
-  //end sort
-
-  // filter
-  const find: Record<string, any> = {
-    deleted: true
-  }
-
-  // lọc theo trạng thái
-  if (status) {
-    find.status = status
-  }
-
-  // lọc theo giá
-  if (minPrice || maxPrice) {
-    find.price = {}
-    if (minPrice) find.price.$gte = +minPrice
-    if (maxPrice) find.price.$lte = +maxPrice
-  }
-  // end filter
-
-  //search
-  // Format keyword để search
-  let formatKeyword: string
-  let regexSlug: RegExp
-  let regexKeyword: RegExp
-  let conditions: Record<string, any> = { ...find }
-  if (keyword) {
-    formatKeyword = slugify(keyword, {
-      replacement: '-',
-      lower: false,
-      locale: 'vi',
-      trim: true
-    })
-    regexSlug = new RegExp(formatKeyword, 'i')
-    regexKeyword = new RegExp(keyword, 'i')
-    conditions.$or = [
-      { slug: regexSlug },
-      { title: regexKeyword },
-      { authors: regexKeyword },
-      { publisher: regexKeyword }
-    ]
-  }
+  const { find, sort } = productUtils.builtProductQuery(req.query, true)
 
   // Query
   const [products, totalProducts] = await Promise.all([
-    productModel.find(conditions).sort(sort).skip(skip).limit(+limit).select('-__v').lean(),
-    productModel.countDocuments(conditions)
+    productModel.find(find).sort(sort).skip(skip).limit(+limit).select('-__v').lean(),
+    productModel.countDocuments(find)
   ])
 
   //end search
@@ -273,6 +190,7 @@ const deleteProductDestroy = catchAsync(async (req: Request, res: Response) => {
 
   res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Xoá sản phẩm vĩnh viễn thành công.'))
 })
+
 export default {
   getProducts,
   getProductById,

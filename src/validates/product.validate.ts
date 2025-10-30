@@ -149,7 +149,9 @@ const action = {
         productConstant.ACTION.DELETEALL,
         productConstant.STATUS.AVAILABLE,
         productConstant.STATUS.OUT_OF_STOCK,
-        productConstant.STATUS.DISCONTINUED
+        productConstant.STATUS.DISCONTINUED,
+        productConstant.ACTION.DELETEALLFOREVER,
+        productConstant.ACTION.RESTOREALL
       )
       .required()
       .messages({
