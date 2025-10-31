@@ -4,10 +4,4 @@ import response from './response'
 import jwt from './jwt'
 import productUtils from './product.utils'
 
-export { 
-  ApiError,
-  catchAsync, 
-  response, 
-  jwt, 
-  productUtils 
-}
+export { ApiError, catchAsync, response, jwt, productUtils }

@@ -10,7 +10,7 @@ export interface IProduct {
   authors: string[]
   publisher: string
   publishingYear: number
-  // categoryId: string
+  categoryId?: Types.ObjectId | null
   language: string
   ISBN?: string
   size?: string
@@ -35,7 +35,7 @@ const productSchema = new Schema<IProduct>(
     authors: { type: [String], required: true },
     publisher: { type: String },
     publishingYear: { type: Number },
-    // categoryId: { type: String },
+    categoryId: { type: Schema.Types.ObjectId, ref: 'Category', default: null },
     language: { type: String },
     ISBN: { type: String },
     size: { type: String },
