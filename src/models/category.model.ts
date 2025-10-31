@@ -43,14 +43,4 @@ const categorySchema = new Schema<ICategory>(
   }
 )
 
-//tạo children của mongoose
-categorySchema.virtual('children', {
-  ref: 'Category',
-  localField: '_id',
-  foreignField: 'parentId'
-})
-
-categorySchema.set('toObject', { virtuals: true })
-categorySchema.set('toJSON', { virtuals: true })
-
 export default model<ICategory>('Category', categorySchema)
